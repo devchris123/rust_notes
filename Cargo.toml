@@ -1,9 +1,14 @@
 [package]
 name = "notes"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
-axum = "0.8.7"
+axum = { version = "0.8.7", features = ["tower-log", "tracing"] }
+nanoid = "0.4.0"
 serde = { version = "1.0.228", features = ["derive"] }
-tokio = "1.48.0"
+tokio = { version = "1.48.0", features = ["rt-multi-thread"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"]}
+tower-http = { version = "0.6.1", features = ["trace"] }
+tower = "0.5.2"
