@@ -1,15 +1,7 @@
 use std::sync::{Arc, Mutex};
-use tower_http::trace::TraceLayer;
 use tracing_subscriber::{self, layer::SubscriberExt, util::SubscriberInitExt};
 
-use axum::{
-    routing::{get, post},
-    Router,
-};
-
-use notes::{
-    delete_note, get_note, list_notes, patch_note, post_note, AppState, Note,
-};
+use notes::{create_app, AppState, Note};
 
 const APP_NAME: &str = "notes";
 
@@ -29,17 +21,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let host_port = "0.0.0.0:3000";
     let api_version = "v1";
     let notes_path = format!("{}/{}/notes", host_port, api_version);
-    let app = Router::new()
-        .route(
-            &format!("/{}/notes", api_version),
-            post(post_note).get(list_notes),
-        )
-        .route(
-            &format!("/{}/notes/{{id}}", api_version),
-            get(get_note).delete(delete_note).patch(patch_note),
-        )
-        .with_state(Arc::new(AppState { notes, notes_path }))
-        .layer(TraceLayer::new_for_http());
+
+    let app = create_app(Arc::new(AppState { notes, notes_path }), api_version);
 
     let span = tracing::info_span!(
         "Start app",
