@@ -1,6 +1,5 @@
 use mongodb::{options::ClientOptions, Client};
 use testcontainers::{clients, GenericImage, RunnableImage};
-use tokio;
 
 use notes::{
     notes::{Note, NoteDb, PatchNote},
@@ -60,8 +59,7 @@ async fn test_with_mongodb_container() {
     let deleted = note_db.delete_note(&create_note.id).await.unwrap();
     assert!(deleted);
     let get_note = note_db.get_note(&create_note.id).await.unwrap();
-    match get_note {
-        Some(_) => panic!("expected no note"),
-        None => {}
+    if get_note.is_some() {
+        panic!("expected no note");
     };
 }

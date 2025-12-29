@@ -1,4 +1,3 @@
-use reqwest;
 use testcontainers::{clients, GenericImage, RunnableImage};
 
 #[tokio::test]

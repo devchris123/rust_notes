@@ -87,16 +87,13 @@ pub async fn create_app(
     // Setup listening
     tracing::info!("Serve on {}", app_config.host_port);
     let serve = axum::serve(listener, app).await;
-    let _ = match serve {
-        Ok(serve) => serve,
-        Err(err) => {
+    if let Err(err) = serve {
             tracing::error!(
                 "unable to serve app for listener at {}",
                 app_config.host_port
             );
             return Err(err.into());
         }
-    };
     Ok(())
 }
 
@@ -128,8 +125,8 @@ pub async fn post_note(
     let id = nanoid!();
     let note = Note {
         id: id.clone(),
-        title: String::from(new_note.title),
-        body: String::from(new_note.body),
+        title: new_note.title,
+        body: new_note.body,
         url: format!("{}/{}", state.notes_path, id.clone()),
     };
     tracing::debug!("create new note {:?}", note);
