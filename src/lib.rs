@@ -25,6 +25,7 @@ const APP_NAME: &str = "notes";
 pub struct AppConfig {
     pub host_port: String,
     pub api_version: String,
+    pub db_uri: String,
 }
 
 pub struct AppState {
@@ -50,8 +51,7 @@ pub async fn create_app(
         format!("{}/{}/notes", app_config.host_port, app_config.api_version);
 
     // Setup notes DB
-    let uri = "uri";
-    let client = create_mongo_client(uri).await;
+    let client = create_mongo_client(&app_config.db_uri).await;
     let Ok(client) = client else {
         tracing::error!("unable to get database client");
         return Err(client.unwrap_err().into());
@@ -86,18 +86,23 @@ pub async fn create_app(
 
     // Setup listening
     tracing::info!("Serve on {}", app_config.host_port);
-    if let Err(err) = axum::serve(listener, app).await {
-        tracing::error!(
-            "unable to serve app for listener at {}",
-            app_config.host_port
-        );
-        return Err(err.into());
-    }
+    let serve = axum::serve(listener, app).await;
+    let _ = match serve {
+        Ok(serve) => serve,
+        Err(err) => {
+            tracing::error!(
+                "unable to serve app for listener at {}",
+                app_config.host_port
+            );
+            return Err(err.into());
+        }
+    };
     Ok(())
 }
 
 fn create_axum_app(state: Arc<AppState>, api_version: &str) -> Router {
     Router::new()
+        .route(&format!("/{}/health", api_version), get(get_health))
         .route(
             &format!("/{}/notes", api_version),
             post(post_note).get(list_notes),
@@ -111,6 +116,10 @@ fn create_axum_app(state: Arc<AppState>, api_version: &str) -> Router {
 }
 
 // Handlers
+pub async fn get_health() -> StatusCode {
+    StatusCode::OK
+}
+
 pub async fn post_note(
     State(state): State<Arc<AppState>>,
     Json(new_note): Json<NewNote>,
