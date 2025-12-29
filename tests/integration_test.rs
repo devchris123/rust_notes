@@ -1,5 +1,5 @@
-use testcontainers::{clients, GenericImage, RunnableImage};
 use reqwest;
+use testcontainers::{clients, GenericImage, RunnableImage};
 
 #[tokio::test]
 async fn test_integration() {
@@ -9,8 +9,7 @@ async fn test_integration() {
     // Start MongoDB container
     let mongo_port = 27017;
     let mongo_image = RunnableImage::from(
-        GenericImage::new("mongo", "7.0.5")
-            .with_exposed_port(mongo_port),
+        GenericImage::new("mongo", "7.0.5").with_exposed_port(mongo_port),
     );
     let _ = docker.run(mongo_image);
 
@@ -34,6 +33,10 @@ async fn test_integration() {
     // Now you can send HTTP requests to your app at localhost:app_port
     // e.g., use reqwest to test endpoints
     let client = reqwest::Client::new();
-    let resp = client.get(format!("http://localhost:{}/v1/health", host_port)).send().await.unwrap();
+    let resp = client
+        .get(format!("http://localhost:{}/v1/health", host_port))
+        .send()
+        .await
+        .unwrap();
     assert!(resp.status().is_success());
 }
