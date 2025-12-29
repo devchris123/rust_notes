@@ -88,12 +88,12 @@ pub async fn create_app(
     tracing::info!("Serve on {}", app_config.host_port);
     let serve = axum::serve(listener, app).await;
     if let Err(err) = serve {
-            tracing::error!(
-                "unable to serve app for listener at {}",
-                app_config.host_port
-            );
-            return Err(err.into());
-        }
+        tracing::error!(
+            "unable to serve app for listener at {}",
+            app_config.host_port
+        );
+        return Err(err.into());
+    }
     Ok(())
 }
 
