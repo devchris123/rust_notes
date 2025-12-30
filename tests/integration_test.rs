@@ -17,7 +17,7 @@ async fn test_integration() {
 
     // Start your app container (assuming your image is built and named "rust-notes")
     let app_image = RunnableImage::from(
-        GenericImage::new("devchris123/rust-notes", "latest")
+        GenericImage::new("chris132/rust-notes", "latest")
             .with_env_var("NOTES_HOST".to_string(), "0.0.0.0".to_string())
             .with_env_var("NOTES_PORT".to_string(), "3000".to_string())
             .with_env_var("NOTES_DB_ADDRESS".to_string(), uri.clone())
